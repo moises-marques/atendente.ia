@@ -14,6 +14,7 @@ app = FastAPI(title="Atendente IA - RoboBot (Modo Híbrido)")
 origins = [
     "https://meu-robochat.netlify.app",  # URL do seu frontend
     "http://localhost:3000",  # se quiser testar localmente
+    "https://meu-frontend-chat.vercel.app",
 ]
 
 app.add_middleware(
