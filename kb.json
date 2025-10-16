@@ -1,0 +1,14 @@
+[
+  {
+    "q": "horário de atendimento",
+    "a": "Nosso horário é Segunda a Sexta das 9h às 18h."
+  },
+  {
+    "q": "preço do plano básico",
+    "a": "O plano básico custa R$ 39/mês. Temos descontos para annual."
+  },
+  {
+    "q": "como cancelar",
+    "a": "Para cancelar, acesse sua conta > Configurações > Cancelar assinatura."
+  }
+]

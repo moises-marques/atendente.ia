@@ -1,0 +1,16 @@
+{"ts": "2025-10-15T17:40:04.485697Z", "user_id": "anon", "message": "Oi RobôBot, tudo bem?", "reply": "Olá! Eu sou o RobôBot. Como posso ajudar você hoje?", "mode": "mock"}
+{"ts": "2025-10-15T22:50:37.311537Z", "user_id": "cliente1", "message": "ola", "reply": "Ainda não sei isso, quer que eu crie um chamado para a equipe humana?", "mode": "mock"}
+{"ts": "2025-10-15T22:51:00.483837Z", "user_id": "cliente1", "message": "sim quero", "reply": "Desculpe — não entendi completamente. Pode dizer de outro jeito?", "mode": "mock"}
+{"ts": "2025-10-15T22:51:50.027679Z", "user_id": "cliente1", "message": "vc nao conversa qualquer coisa nao?", "reply": "Olá! Eu sou o RobôBot. Como posso ajudar você hoje?", "mode": "mock"}
+{"ts": "2025-10-15T22:52:15.969390Z", "user_id": "cliente1", "message": "preciso de uma ajuda nos meus estudos, vc pode me ajudar?", "reply": "Posso ajudar com: 'abrir chamado', 'préços', 'horário de atendimento' ou 'status do pedido'.", "mode": "mock"}
+{"ts": "2025-10-15T22:53:00.597864Z", "user_id": "cliente1", "message": "o que é abrir chamado, nao entendi?", "reply": "✅ Chamado criado com sucesso. ID: T-7754. Nosso time responderá em até 24h.", "mode": "mock"}
+{"ts": "2025-10-15T22:53:37.025633Z", "user_id": "cliente1", "message": "esses preços é referente a que?", "reply": "Temos planos que começam em R$ 39/mês. Quer que eu envie os detalhes por e-mail?", "mode": "mock"}
+{"ts": "2025-10-15T22:53:46.988585Z", "user_id": "cliente1", "message": "sim quero", "reply": "Desculpe — não entendi completamente. Pode dizer de outro jeito?", "mode": "mock"}
+{"ts": "2025-10-15T22:54:07.967018Z", "user_id": "cliente1", "message": "Temos planos que começam em R$ 39/mês. Quer que eu envie os detalhes por e-mail? sim quero", "reply": "Desculpe — não entendi completamente. Pode dizer de outro jeito?", "mode": "mock"}
+{"ts": "2025-10-15T23:13:50.351576Z", "user_id": "anon", "message": "ola", "reply": "Desculpe — não entendi completamente. Pode dizer de outro jeito?", "mode": "mock"}
+{"ts": "2025-10-15T23:14:07.587037Z", "user_id": "anon", "message": "eu quero uma resposata", "reply": "Posso ajudar com: 'abrir chamado', 'préços', 'horário de atendimento' ou 'status do pedido'.", "mode": "mock"}
+{"ts": "2025-10-15T23:14:15.019030Z", "user_id": "anon", "message": "abra um chamado", "reply": "Posso ajudar com: 'abrir chamado', 'préços', 'horário de atendimento' ou 'status do pedido'.", "mode": "mock"}
+{"ts": "2025-10-15T23:14:24.655263Z", "user_id": "anon", "message": "abra um chamado", "reply": "Posso ajudar com: 'abrir chamado', 'préços', 'horário de atendimento' ou 'status do pedido'.", "mode": "mock"}
+{"ts": "2025-10-15T23:14:32.125480Z", "user_id": "anon", "message": "abra um chamado", "reply": "Ainda não sei isso, quer que eu crie um chamado para a equipe humana?", "mode": "mock"}
+{"ts": "2025-10-16T02:05:23.500742Z", "user_id": "anon", "message": "ola", "reply": "Ainda não sei isso, quer que eu crie um chamado para a equipe humana?", "mode": "mock"}
+{"ts": "2025-10-16T02:05:40.169362Z", "user_id": "anon", "message": "sim", "reply": "Desculpe — não entendi completamente. Pode dizer de outro jeito?", "mode": "mock"}
