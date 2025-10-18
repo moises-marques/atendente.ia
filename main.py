@@ -170,60 +170,87 @@ async def chat_endpoint(body: MessageIn):
     log_message(user_id, user_msg, reply, mode="disabled")
     return {"reply": reply, "meta": {"mode":"disabled"}}
 
-# ---------- Função para enviar mensagens ao WhatsApp ----------
+# ESTA FUNÇÃO SUBSTITUI A SUA send_whatsapp_via_provider
 def send_whatsapp_via_provider(to_phone: str, text: str):
     """
     Função que envia uma mensagem para o WhatsApp via UltraMSG.
+    USANDO A ESTRUTURA DE URL COMPLETA.
     """
-    provider_url = os.getenv("WH_PROVIDER_SEND_URL")  # vem do seu .env ou Render
+    provider_url = os.getenv("WH_PROVIDER_SEND_URL")  # ex: https://api.ultramsg.com/instance146591/messages
     provider_token = os.getenv("WH_PROVIDER_TOKEN")
 
+    # A API do UltraMSG espera o token como parâmetro na URL, não como header (como você estava fazendo)
+    url = f"{provider_url}?token={provider_token}"
+    
     payload = {
         "to": to_phone,
         "body": text
     }
+    
+    # Headers simplificados (Content-Type: application/json é o suficiente)
     headers = {
-        "Authorization": f"Bearer {provider_token}",
         "Content-Type": "application/json"
     }
 
-    resp = requests.post(provider_url, json=payload, headers=headers, timeout=15)
-    resp.raise_for_status()
-    return resp.json()
+    try:
+        resp = requests.post(url, json=payload, headers=headers, timeout=15)
+        
+        # O .raise_for_status() levanta exceção se for 4xx ou 5xx
+        resp.raise_for_status() 
+        
+        print(f"✅ Sucesso no envio para {to_phone}. Resposta: {resp.text}")
+        return resp.json()
+    except requests.exceptions.HTTPError as e:
+        print(f"❌ ERRO HTTP ao enviar para o WhatsApp: {e.response.status_code} - {e.response.text}")
+        raise # Re-lança a exceção para que o /webhook retorne o 500
+    except Exception as e:
+        print(f"❌ ERRO GERAL ao enviar para o WhatsApp: {e}")
+        raise # Re-lança a exceção
 
-def gerar_resposta_ia(user_msg: str) -> str:
+def gerar_resposta_ia(message: str):
     """
-    Gera uma resposta usando a lógica mock (a mesma do /chat).
-    No futuro, você pode integrar aqui com a OpenAI se quiser.
+    Gera uma resposta de IA ou mock, dependendo do modo.
     """
-    reply, _ = mock_reply(user_msg)
-    return reply
+    if USE_MOCK:
+        reply, _ = mock_reply(message)
+        return reply
+    else:
+        # Aqui entraria a chamada real à API da OpenAI, se USE_MOCK=False
+        return "🤖 (IA real ainda não configurada, usando modo mock)"
 
 
 
+# ESTE CÓDIGO SUBSTITUI O SEU ENDPOINT /WEBHOOK ATUAL
 @app.post("/webhook")
 async def receive_message(request: Request):
     try:
-        body_bytes = await request.body()          # pega o body como bytes
-        data = json.loads(body_bytes.decode("utf-8"))  # força UTF-8
+        # Lê o corpo da requisição como bytes
+        body_bytes = await request.body()
+        
+        # Decodifica como UTF-8 (mais robusto)
+        data = json.loads(body_bytes.decode("utf-8", errors="ignore")) 
 
     except Exception as e:
-        print("⚠️ Erro ao decodificar JSON:", e)
+        print(f"⚠️ Erro ao decodificar JSON: {e}")
         return {"status": "error", "message": str(e)}
 
     print("📩 Mensagem recebida:", data)
 
-    # Pega o texto da mensagem enviada no WhatsApp
+    # Note que o UltraMSG envia 'body' para o texto e 'from' para o remetente
     message = data.get("body", "")
-    sender = data.get("from", "")
+    sender = data.get("from", "") # Remetente no formato [DDI][DDD][Número]@c.us
 
     if message and sender:
-        # Gera a resposta com a IA
-        reply = gerar_resposta_ia(message)
-    try:# Envia a resposta de volta pro WhatsApp
-        send_whatsapp_via_provider(sender, reply)
-    except Exception as e:
-        print("⚠️ Erro ao enviar WhatsApp:", e)
-    return {"status": "ok"}
+        # Gera a resposta usando sua lógica existente
+        reply = gerar_resposta_ia(message) 
+        
+        try:
+            # Envia a resposta de volta pro WhatsApp usando a função corrigida
+            send_whatsapp_via_provider(sender, reply)
+        except Exception as e:
+            # O erro de envio já foi logado dentro da função
+            return {"status": "ok", "message": "Resposta não enviada, mas recebida."}
 
+    # É crucial retornar 200 (status ok) para o UltraMSG, mesmo se falhar
+    return {"status": "ok"}
 
