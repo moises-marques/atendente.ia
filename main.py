@@ -203,19 +203,27 @@ def gerar_resposta_ia(user_msg: str) -> str:
 
 @app.post("/webhook")
 async def receive_message(request: Request):
-    data = await request.json()
+    try:
+        body_bytes = await request.body()          # pega o body como bytes
+        data = json.loads(body_bytes.decode("utf-8"))  # força UTF-8
+
+    except Exception as e:
+        print("⚠️ Erro ao decodificar JSON:", e)
+        return {"status": "error", "message": str(e)}
+
     print("📩 Mensagem recebida:", data)
 
     # Pega o texto da mensagem enviada no WhatsApp
     message = data.get("body", "")
     sender = data.get("from", "")
 
-    if message:
+    if message and sender:
         # Gera a resposta com a IA
         reply = gerar_resposta_ia(message)
-        # Envia a resposta de volta pro WhatsApp
+    try:# Envia a resposta de volta pro WhatsApp
         send_whatsapp_via_provider(sender, reply)
-    
+    except Exception as e:
+        print("⚠️ Erro ao enviar WhatsApp:", e)
     return {"status": "ok"}
 
 
