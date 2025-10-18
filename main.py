@@ -8,6 +8,9 @@ from dotenv import load_dotenv
 import difflib
 from datetime import datetime
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi import Request
+import requests
+
 
 app = FastAPI(title="Atendente IA - RoboBot (Modo Híbrido)")
 
@@ -166,6 +169,37 @@ async def chat_endpoint(body: MessageIn):
     reply = "⚠️ Modo real não habilitado. Configure USE_MOCK=false e a integração com LLM."
     log_message(user_id, user_msg, reply, mode="disabled")
     return {"reply": reply, "meta": {"mode":"disabled"}}
+
+# ---------- Função para enviar mensagens ao WhatsApp ----------
+def send_whatsapp_via_provider(to_phone: str, text: str):
+    """
+    Função que envia uma mensagem para o WhatsApp via UltraMSG.
+    """
+    provider_url = os.getenv("WH_PROVIDER_SEND_URL")  # vem do seu .env ou Render
+    provider_token = os.getenv("WH_PROVIDER_TOKEN")
+
+    payload = {
+        "to": to_phone,
+        "body": text
+    }
+    headers = {
+        "Authorization": f"Bearer {provider_token}",
+        "Content-Type": "application/json"
+    }
+
+    resp = requests.post(provider_url, json=payload, headers=headers, timeout=15)
+    resp.raise_for_status()
+    return resp.json()
+
+def gerar_resposta_ia(user_msg: str) -> str:
+    """
+    Gera uma resposta usando a lógica mock (a mesma do /chat).
+    No futuro, você pode integrar aqui com a OpenAI se quiser.
+    """
+    reply, _ = mock_reply(user_msg)
+    return reply
+
+
 
 @app.post("/webhook")
 async def receive_message(request: Request):
