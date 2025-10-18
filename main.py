@@ -167,3 +167,21 @@ async def chat_endpoint(body: MessageIn):
     log_message(user_id, user_msg, reply, mode="disabled")
     return {"reply": reply, "meta": {"mode":"disabled"}}
 
+@app.post("/webhook")
+async def receive_message(request: Request):
+    data = await request.json()
+    print("📩 Mensagem recebida:", data)
+
+    # Pega o texto da mensagem enviada no WhatsApp
+    message = data.get("body", "")
+    sender = data.get("from", "")
+
+    if message:
+        # Gera a resposta com a IA
+        reply = gerar_resposta_ia(message)
+        # Envia a resposta de volta pro WhatsApp
+        send_whatsapp_via_provider(sender, reply)
+    
+    return {"status": "ok"}
+
+
