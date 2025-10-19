@@ -14,6 +14,10 @@ import requests
 
 app = FastAPI(title="Atendente IA - RoboBot (Modo Híbrido)")
 
+ULTRAMSG_INSTANCE = "instance146591"
+ULTRAMSG_TOKEN = os.getenv("WH_PROVIDER_TOKEN")
+ULTRAMSG_URL = f"https://api.ultramsg.com/{ULTRAMSG_INSTANCE}/messages/chat"
+
 origins = [
     "https://meu-robochat.netlify.app",  # URL do seu frontend
     "http://localhost:3000",  # se quiser testar localmente
@@ -207,7 +211,7 @@ def send_whatsapp_via_provider(to_phone: str, text: str):
         print(f"❌ ERRO GERAL ao enviar para o WhatsApp: {e}")
         raise # Re-lança a exceção
 
-def gerar_resposta_ia(message: str):
+def gerar_resposta_ia(message: str, idioma="pt"):
     """
     Gera uma resposta de IA ou mock, dependendo do modo.
     """
@@ -222,35 +226,35 @@ def gerar_resposta_ia(message: str):
 
 # ESTE CÓDIGO SUBSTITUI O SEU ENDPOINT /WEBHOOK ATUAL
 @app.post("/webhook")
-async def receive_message(request: Request):
+async def webhook(request: Request):
     try:
-        # Lê o corpo da requisição como bytes
-        body_bytes = await request.body()
-        
-        # Decodifica como UTF-8 (mais robusto)
-        data = json.loads(body_bytes.decode("utf-8", errors="ignore")) 
+        data = await request.json()
+        mensagem = data.get("body")
+        remetente = data.get("from")
+
+        if not mensagem or not remetente:
+            return {"status": "error", "message": "Mensagem ou remetente inválido"}
+
+        resposta_bot = gerar_resposta_ia(mensagem, idioma="pt")  # adiciona esta linha
+        payload = {
+            "to": remetente,
+            "body": resposta_bot
+        }
+        headers = {"Content-Type": "application/json"}
+    
+    # Envia pro WhatsApp
+        url_envio = f"{ULTRAMSG_URL}?token={ULTRAMSG_TOKEN}"
+        r = requests.post(url_envio, json=payload, headers=headers)
+        r.raise_for_status()
+
+        print(f"✅ Mensagem enviada para {remetente}: {resposta_bot}")
+        print(f"📦 Resposta da API UltraMSG: {r.json()}")
 
     except Exception as e:
         print(f"⚠️ Erro ao decodificar JSON: {e}")
         return {"status": "error", "message": str(e)}
 
-    print("📩 Mensagem recebida:", data)
-
-    # Note que o UltraMSG envia 'body' para o texto e 'from' para o remetente
-    message = data.get("body", "")
-    sender = data.get("from", "") # Remetente no formato [DDI][DDD][Número]@c.us
-
-    if message and sender:
-        # Gera a resposta usando sua lógica existente
-        reply = gerar_resposta_ia(message) 
-        
-        try:
-            # Envia a resposta de volta pro WhatsApp usando a função corrigida
-            send_whatsapp_via_provider(sender, reply)
-        except Exception as e:
-            # O erro de envio já foi logado dentro da função
-            return {"status": "ok", "message": "Resposta não enviada, mas recebida."}
-
+    
     # É crucial retornar 200 (status ok) para o UltraMSG, mesmo se falhar
     return {"status": "ok"}
 
