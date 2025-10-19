@@ -223,26 +223,29 @@ def gerar_resposta_ia(message: str, idioma="pt"):
         return "🤖 (IA real ainda não configurada, usando modo mock)"
 
 
-
 # ESTE CÓDIGO SUBSTITUI O SEU ENDPOINT /WEBHOOK ATUAL
 @app.post("/webhook")
 async def webhook(request: Request):
     try:
         data = await request.json()
-        mensagem = data.get("body")
-        remetente = data.get("from")
+        mensagem = data.get("body")   # <-- aqui pega a mensagem recebida
+        remetente = data.get("from")  # <-- aqui pega o remetente
 
         if not mensagem or not remetente:
             return {"status": "error", "message": "Mensagem ou remetente inválido"}
 
-        resposta_bot = gerar_resposta_ia(mensagem, idioma="pt")  # adiciona esta linha
+        # ===============================
+        # É aqui que você gera a resposta do seu RobôBot
+        # ===============================
+        resposta_bot = gerar_resposta_ia(mensagem, idioma="pt")  # <- aqui retorna "Olá! Eu sou o RobôBot..."
+
+        # Prepara o payload para enviar via UltraMSG
         payload = {
             "to": remetente,
-            "body": resposta_bot
+            "body": resposta_bot    # <- aqui vai o texto que o usuário vai receber
         }
         headers = {"Content-Type": "application/json"}
     
-    # Envia pro WhatsApp
         url_envio = f"{ULTRAMSG_URL}?token={ULTRAMSG_TOKEN}"
         r = requests.post(url_envio, json=payload, headers=headers)
         r.raise_for_status()
@@ -254,7 +257,6 @@ async def webhook(request: Request):
         print(f"⚠️ Erro ao decodificar JSON: {e}")
         return {"status": "error", "message": str(e)}
 
-    
-    # É crucial retornar 200 (status ok) para o UltraMSG, mesmo se falhar
     return {"status": "ok"}
+
 
